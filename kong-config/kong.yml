@@ -1,0 +1,15 @@
+_format_version: "2.1"
+services:
+  - name: backend-service
+    url: http://backend:5000
+    routes:
+      - name: backend-route
+        paths:
+          - /api
+
+  - name: frontend-service
+    url: http://frontend:8080
+    routes:
+      - name: frontend-route
+        paths:
+          - /

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wowzies
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - ./mysql-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - wowzies-net
+
+  backend:
+    image: fuioreadanielaandreea/backend
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql-db
+    networks:
+      - wowzies-net
+
+  admin-server:
+    image: fuioreadanielaandreea/admin-server
+    build: ./admin-server
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mysql-db
+    networks:
+      - wowzies-net
+
+  frontend:
+    image: fuioreadanielaandreea/frontend
+    build: ./frontend
+    ports:
+      - "8080:8080"
+    networks:
+      - wowzies-net
+
+  kong:
+    image: kong:latest
+    container_name: kong
+    environment:
+      KONG_DATABASE: off
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+    volumes:
+      - ./kong-config/kong.yml:/kong/declarative/kong.yml
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    networks:
+      - wowzies-net
+
+networks:
+  wowzies-net:
